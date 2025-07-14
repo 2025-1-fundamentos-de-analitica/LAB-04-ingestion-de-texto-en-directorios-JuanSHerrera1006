@@ -5,6 +5,42 @@
 Escriba el codigo que ejecute la accion solicitada en cada pregunta.
 """
 
+import glob
+import os
+import csv
+import pandas as pd
+
+INPUT_PATH = "files/input/"
+OUTPUT_PATH = "files/output/"
+
+
+def read_data(dirname, subdirs):
+    data = []
+    for d in subdirs:
+        file_pattern = os.path.join(INPUT_PATH, dirname, d, "*.txt")
+        for filepath in glob.glob(file_pattern):
+            with open(filepath) as file:
+                content = file.readlines()
+                data.append(("".join(content), d))
+    return data
+
+
+def load_data(dirname, data, headers=["phrase", "target"]):
+
+    if not (os.path.exists(OUTPUT_PATH)):
+        os.mkdir(OUTPUT_PATH)
+
+    with open(
+        os.path.join(OUTPUT_PATH, dirname + "_dataset.csv"),
+        mode="w",
+        newline="",
+    ) as file:
+        writer = csv.writer(
+            file, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL
+        )
+        writer.writerow(headers)
+        writer.writerows(data)
+
 
 def pregunta_01():
     """
@@ -68,6 +104,10 @@ def pregunta_01():
     |  3 | Both operating profit and net sales for the three-month period increased , respectively from EUR16 .0 m and EUR139m , as compared to the corresponding quarter in 2006 | positive |
     |  4 | Tampere Science Parks is a Finnish company that owns , leases and builds office properties and it specialises in facilities for technology-oriented businesses         | neutral  |
     ```
-
-
     """
+    # Leer la informacion
+    test = read_data("test", ["negative", "neutral", "positive"])
+    train = read_data("train", ["negative", "neutral", "positive"])
+    # Cargar la informacion
+    load_data("test", test)
+    load_data("train", train)
